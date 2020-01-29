@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import com.matera.digitalbank.utils.DigitalBankUtils;
 @Service
 public class LancamentoService {
 
+	private static final String COMPLEMENTO_ESTORNO = " - Estornado";
 	private final LancamentoRepository lancamentoRepository;
 	private final TransferenciaRepository transferenciaRepository;
 	private final EstornoRepository estornoRepository;
@@ -85,7 +87,7 @@ public class LancamentoService {
 
 	@Transactional
 	public ComprovanteResponseDTO estornaLancamento(Long idConta, Long idLancamento) {
-		Lancamento lancamento = lancamentoRepository.findByIdAndConta_Id(idLancamento, idConta).orElse(null);
+		Lancamento lancamento = buscaLancamentoConta(idConta, idLancamento);
 		Transferencia transferencia = transferenciaRepository.consultaTransferenciaPorIdLancamento(idLancamento).orElse(null);
 
 		validaEstorno(lancamento, transferencia, idConta, idLancamento);
@@ -95,6 +97,24 @@ public class LancamentoService {
 		} else {
 			return trataEstornoLancamento(lancamento);
 		}
+	}
+
+	@Transactional
+	public void removeLancamentoEstorno(Long idConta, Long idLancamento) {
+		Lancamento lancamentoEstorno = buscaLancamentoConta(idConta, idLancamento);
+		Estorno estorno = estornoRepository.findByLancamentoEstorno_Id(idLancamento)
+										   .orElseThrow(() -> new ServiceException("Somente lançamentos de estorno podem ser removidos"));
+		Lancamento lancamentoOriginal = estorno.getLancamentoOriginal(); 
+		
+		lancamentoOriginal.getConta().setSaldo(DigitalBankUtils.calculaSaldo(
+				Natureza.valueOf(lancamentoOriginal.getNatureza()), 
+				lancamentoOriginal.getValor(), 
+				lancamentoOriginal.getConta().getSaldo()));
+		lancamentoOriginal.setDescricao(lancamentoOriginal.getDescricao().replace(COMPLEMENTO_ESTORNO, ""));
+		
+		lancamentoRepository.save(lancamentoOriginal);
+		estornoRepository.delete(estorno);
+		lancamentoRepository.delete(lancamentoEstorno);
 	}
 
 	public ComprovanteResponseDTO consultaComprovanteLancamento(Long idConta, Long idLancamento) {
@@ -127,10 +147,6 @@ public class LancamentoService {
     }
 
 	private void validaEstorno(Lancamento lancamento, Transferencia transferencia, Long idConta, Long idLancamento) {
-		if (lancamento == null) {
-			throw new ServiceException("O lançamento de ID " + idLancamento + " não existe para a conta de ID " + idConta + ".");
-		}
-
 		if (TipoLancamento.ESTORNO.getCodigo().equals(lancamento.getTipoLancamento())) {
 			throw new ServiceException("Tipo de lançamento " + lancamento.getTipoLancamento() + " não permite estornos.");
 		}
@@ -171,7 +187,7 @@ public class LancamentoService {
 														   .valor(lancamento.getValor())
 														   .build();
 
-		lancamento.setDescricao(lancamento.getDescricao() + " - Estornado");
+		lancamento.setDescricao(lancamento.getDescricao() + COMPLEMENTO_ESTORNO);
 		lancamentoRepository.save(lancamento);
 		lancamentoRepository.save(lancamentoEstorno);
 
@@ -182,6 +198,13 @@ public class LancamentoService {
 		estornoRepository.save(estorno);
 
 		return entidadeParaComprovanteResponseDTO(lancamentoEstorno);
+	}
+	
+	private Lancamento buscaLancamentoConta(Long idConta, Long idLancamento) {
+		return lancamentoRepository.findByIdAndConta_Id(idLancamento, idConta)
+								   .orElseThrow(() -> new ServiceException("O lançamento de ID " + 
+						           idLancamento + " não existe para a conta de ID " + 
+										   idConta + "."));
 	}
 
 	private String geraAutenticacao() {

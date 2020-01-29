@@ -41,7 +41,7 @@ public class ContaService {
 
     @Transactional
     public ContaResponseDTO cadastra(Cliente cliente) {
-        valida(cliente);
+        validaCadastro(cliente);
 
         Conta conta = Conta.builder().cliente(cliente)
                                      .numeroAgencia(new Random().nextInt(numeroMaximoAgencia) + 1)
@@ -56,10 +56,10 @@ public class ContaService {
     }
 
     @Transactional
-	public ComprovanteResponseDTO efetuaLancamento(Long id, LancamentoRequestDTO lancamentoRequestDTO, Natureza natureza, TipoLancamento tipoLancamento) {
+	public ComprovanteResponseDTO efetuaLancamento(Long id, LancamentoRequestDTO lancamentoRequestDTO, TipoLancamento tipoLancamento) {
 		Conta conta = findById(id);
 
-		Lancamento lancamento = insereLancamento(lancamentoRequestDTO, conta, natureza, tipoLancamento);
+		Lancamento lancamento = insereLancamento(lancamentoRequestDTO, conta, defineNaturezaPorTipoLancamento(tipoLancamento), tipoLancamento);
 
 		return lancamentoService.entidadeParaComprovanteResponseDTO(lancamento);
 	}
@@ -151,12 +151,16 @@ public class ContaService {
 							  .orElseThrow(() -> new ServiceException("Conta de ID " + id + " não encontrada."));
 	}
 
-    private void valida(Cliente cliente) {
+    private void validaCadastro(Cliente cliente) {
         if (contaRepository.findByNumeroConta(cliente.getTelefone()).isPresent()) {
             throw new ServiceException("Já existe uma conta cadastrada com o número de telefone informado (" +
                                        cliente.getTelefone() + ").");
         }
     }
+    
+    private Natureza defineNaturezaPorTipoLancamento(TipoLancamento tipoLancamento) {
+		return TipoLancamento.DEPOSITO.equals(tipoLancamento) ? Natureza.CREDITO : Natureza.DEBITO;
+	}
 
     private Lancamento insereLancamento(LancamentoRequestDTO lancamentoRequestDTO, Conta conta, Natureza natureza, TipoLancamento tipoLancamento) {
 	    Lancamento lancamento = lancamentoService.efetuaLancamento(lancamentoRequestDTO, conta, natureza, tipoLancamento);
