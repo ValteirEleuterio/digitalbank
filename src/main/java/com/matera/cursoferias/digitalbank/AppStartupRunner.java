@@ -7,7 +7,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.matera.cursoferias.digitalbank.dto.request.ClienteRequestDTO;
-import com.matera.cursoferias.digitalbank.entity.Cliente;
 import com.matera.cursoferias.digitalbank.service.ClienteService;
 
 @Component

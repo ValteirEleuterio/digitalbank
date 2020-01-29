@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -23,13 +22,14 @@ import com.matera.cursoferias.digitalbank.exception.ServiceException;
 import com.matera.cursoferias.digitalbank.repository.EstornoRepository;
 import com.matera.cursoferias.digitalbank.repository.LancamentoRepository;
 import com.matera.cursoferias.digitalbank.repository.TransferenciaRepository;
-import com.matera.digitalbank.utils.DigitalBankUtils;
+import com.matera.cursoferias.digitalbank.utils.DigitalBankUtils;
 
 @Service
 public class LancamentoService {
 
 	private static final String COMPLEMENTO_ESTORNO = " - Estornado";
-	private final LancamentoRepository lancamentoRepository;
+
+    private final LancamentoRepository lancamentoRepository;
 	private final TransferenciaRepository transferenciaRepository;
 	private final EstornoRepository estornoRepository;
 
@@ -69,9 +69,9 @@ public class LancamentoService {
 
 	public List<ComprovanteResponseDTO> consultaExtratoCompleto(Conta conta) {
 		List<Lancamento> lancamentos = lancamentoRepository.findByConta_IdOrderByIdDesc(conta.getId());
-
 		List<ComprovanteResponseDTO> comprovantesResponseDTO = new ArrayList<>();
-		lancamentos.forEach(l -> comprovantesResponseDTO.add(entidadeParaComprovanteResponseDTO(l)));
+
+		lancamentos.forEach(lan -> comprovantesResponseDTO.add(entidadeParaComprovanteResponseDTO(lan)));
 
 		return comprovantesResponseDTO;
 	}
@@ -80,7 +80,7 @@ public class LancamentoService {
 		List<Lancamento> lancamentos = lancamentoRepository.consultaLancamentosPorPeriodo(conta.getId(), dataInicial, dataFinal);
 
 		List<ComprovanteResponseDTO> comprovantesResponseDTO = new ArrayList<>();
-		lancamentos.forEach(l -> comprovantesResponseDTO.add(entidadeParaComprovanteResponseDTO(l)));
+		lancamentos.forEach(lan -> comprovantesResponseDTO.add(entidadeParaComprovanteResponseDTO(lan)));
 
 		return comprovantesResponseDTO;
 	}
@@ -101,25 +101,23 @@ public class LancamentoService {
 
 	@Transactional
 	public void removeLancamentoEstorno(Long idConta, Long idLancamento) {
-		Lancamento lancamentoEstorno = buscaLancamentoConta(idConta, idLancamento);
-		Estorno estorno = estornoRepository.findByLancamentoEstorno_Id(idLancamento)
-										   .orElseThrow(() -> new ServiceException("Somente lançamentos de estorno podem ser removidos"));
-		Lancamento lancamentoOriginal = estorno.getLancamentoOriginal(); 
-		
-		lancamentoOriginal.getConta().setSaldo(DigitalBankUtils.calculaSaldo(
-				Natureza.valueOf(lancamentoOriginal.getNatureza()), 
-				lancamentoOriginal.getValor(), 
-				lancamentoOriginal.getConta().getSaldo()));
-		lancamentoOriginal.setDescricao(lancamentoOriginal.getDescricao().replace(COMPLEMENTO_ESTORNO, ""));
-		
-		lancamentoRepository.save(lancamentoOriginal);
-		estornoRepository.delete(estorno);
-		lancamentoRepository.delete(lancamentoEstorno);
+	    Lancamento lancamentoEstorno = buscaLancamentoConta(idConta, idLancamento);
+	    Estorno estorno = estornoRepository.findByLancamentoEstorno_Id(idLancamento)
+	                                       .orElseThrow(() -> new ServiceException("Somente lançamentos de estorno podem ser removidos."));
+	    Lancamento lancamentoOriginal = estorno.getLancamentoOriginal();
+
+	    lancamentoOriginal.getConta().setSaldo(DigitalBankUtils.calculaSaldo(Natureza.valueOf(lancamentoOriginal.getNatureza()),
+	                                                                         lancamentoOriginal.getValor(),
+	                                                                         lancamentoOriginal.getConta().getSaldo()));
+	    lancamentoOriginal.setDescricao(lancamentoOriginal.getDescricao().replace(COMPLEMENTO_ESTORNO, ""));
+
+	    lancamentoRepository.save(lancamentoOriginal);
+	    estornoRepository.delete(estorno);
+	    lancamentoRepository.delete(lancamentoEstorno);
 	}
 
 	public ComprovanteResponseDTO consultaComprovanteLancamento(Long idConta, Long idLancamento) {
-		Lancamento lancamento = lancamentoRepository.findByIdAndConta_Id(idLancamento, idConta)
-													.orElseThrow(() -> new ServiceException("O lançamento de ID " + idLancamento + " não existe para a conta de ID " + idConta + "."));
+		Lancamento lancamento = buscaLancamentoConta(idConta, idLancamento);
 
 		return entidadeParaComprovanteResponseDTO(lancamento);
 	}
@@ -134,7 +132,6 @@ public class LancamentoService {
                                         	   .descricao(lancamento.getDescricao())
                                         	   .build();
 	}
-
 
 	private void validaLancamento(Lancamento lancamento) {
 	    if (SituacaoConta.BLOQUEADA.getCodigo().equals(lancamento.getConta().getSituacao())) {
@@ -199,13 +196,11 @@ public class LancamentoService {
 
 		return entidadeParaComprovanteResponseDTO(lancamentoEstorno);
 	}
-	
+
 	private Lancamento buscaLancamentoConta(Long idConta, Long idLancamento) {
-		return lancamentoRepository.findByIdAndConta_Id(idLancamento, idConta)
-								   .orElseThrow(() -> new ServiceException("O lançamento de ID " + 
-						           idLancamento + " não existe para a conta de ID " + 
-										   idConta + "."));
-	}
+        return lancamentoRepository.findByIdAndConta_Id(idLancamento, idConta)
+                                   .orElseThrow(() -> new ServiceException("O lançamento de ID " + idLancamento + " não existe para a conta de ID " + idConta + "."));
+    }
 
 	private String geraAutenticacao() {
 		return UUID.randomUUID().toString();
