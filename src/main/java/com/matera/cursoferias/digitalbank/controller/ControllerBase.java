@@ -16,27 +16,28 @@ import com.matera.cursoferias.digitalbank.exception.ServiceException;
 
 public abstract class ControllerBase {
 
-	@ExceptionHandler(ServiceException.class)
-	public ResponseEntity<ResponseDTO<Object>> handleException(ServiceException exception) {
-		ErroResponseDTO erro = new ErroResponseDTO(exception.getMessage());
-		
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ResponseDTO.comErro(erro));
-	}
-	
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ResponseDTO<Object>> handleException(MethodArgumentNotValidException exception) {
-		List<ErroResponseDTO> erros = new ArrayList<>();
-		BindingResult bindingResult = exception.getBindingResult();		
-		
-		bindingResult.getFieldErrors().forEach((fieldError) -> {
-			String campo = fieldError.getField();
-			String mensagem = String.format("%s: %s", campo, fieldError.getDefaultMessage());
-		
-			erros.add(new ErroResponseDTO(campo, mensagem));
-		});
-				
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ResponseDTO.comErros(erros)); 
-	}
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<ResponseDTO<Object>> handleException(ServiceException exception) {
+        ErroResponseDTO erro = new ErroResponseDTO(exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(ResponseDTO.comErro(erro));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseDTO<Object>> handleException(MethodArgumentNotValidException exception) {
+        List<ErroResponseDTO> erros = new ArrayList<>();
+        BindingResult bindingResult = exception.getBindingResult();
+
+        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            String campo = fieldError.getField();
+            String mensagem = String.format("%s: %s", campo, fieldError.getDefaultMessage());
+
+            erros.add(new ErroResponseDTO(campo, mensagem));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(ResponseDTO.comErros(erros));
+    }
+
 }

@@ -12,12 +12,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class ErroResponseDTO {
-	
-	private String campo;
-	private String mensagem;
-	
-	public ErroResponseDTO(String mensagem) {
-		this.mensagem = mensagem;
-	}
-	
+
+    private String campo;
+    private String mensagem;
+
+    public ErroResponseDTO(String mensagem) {
+        this.mensagem = mensagem;
+    }
+
 }

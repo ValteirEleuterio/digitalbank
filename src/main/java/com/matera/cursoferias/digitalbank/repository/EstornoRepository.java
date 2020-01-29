@@ -10,6 +10,6 @@ public interface EstornoRepository extends JpaRepository<Estorno, Long> {
 
 	Optional<Estorno> findByLancamentoOriginal_Id(Long idLancamentoOriginal);
 
-	Optional<Estorno> findByLancamentoEstorno_Id(Long idLancamento);
+    Optional<Estorno> findByLancamentoEstorno_Id(Long idLancamento);
 
 }

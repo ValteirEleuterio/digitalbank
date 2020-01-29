@@ -20,65 +20,54 @@ import com.matera.cursoferias.digitalbank.dto.response.ContaResponseDTO;
 import com.matera.cursoferias.digitalbank.dto.response.ResponseDTO;
 import com.matera.cursoferias.digitalbank.service.ClienteService;
 
-
 @RestController
 @RequestMapping("/api/v1/clientes")
 public class ClienteController extends ControllerBase {
-	
-	private final ClienteService clienteService;
 
-	public ClienteController(ClienteService clienteService) {
-		this.clienteService = clienteService;
-	}
-	
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<ClienteResponseDTO> consultaPorId(@PathVariable("id") Long id){
-		ClienteResponseDTO clienteResponseDTO = clienteService.consulta(id);
-		
-		return ResponseEntity.status(HttpStatus.OK)
-				.body(clienteResponseDTO);
-	}
-	
-	
-	@GetMapping
-	public ResponseEntity<ResponseDTO<List<ClienteResponseDTO>>> consultaTodos(){
-		List<ClienteResponseDTO> clientes = clienteService.consultaTodos();
-		
-		return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseDTO<>(clientes));
-	}
-	
-	@GetMapping("/{id}/conta")
-	public ResponseEntity<ResponseDTO<ContaResponseDTO>> consultaConta(@PathVariable("id") Long id){
-		ContaResponseDTO contaResponseDTO = clienteService.consultaContaPorIdCliente(id);
-		
-		return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseDTO<>(contaResponseDTO));
-	}
-	
-	@PostMapping
-	public ResponseEntity<ResponseDTO<ContaResponseDTO>> cadastra(@Valid @RequestBody ClienteRequestDTO clienteRequestDTO) {
-		ContaResponseDTO contaResponseDTO = clienteService.cadastra(clienteRequestDTO);
-		
-		
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(new ResponseDTO<>(contaResponseDTO));
-	}
-	
-	
-	@PutMapping("/{id}")
-	public ResponseEntity<Void> atualiza(@PathVariable("id") Long id, @Valid @RequestBody ClienteRequestDTO clienteRequestDTO) {
-		clienteService.atualiza(id, clienteRequestDTO);			
-		return ResponseEntity.noContent().build();
-	}
-	
+    private final ClienteService clienteService;
 
-	
-	
-	
+    public ClienteController(ClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
 
-	
-	
-	
+    @PostMapping
+    public ResponseEntity<ResponseDTO<ContaResponseDTO>> cadastra(@Valid @RequestBody ClienteRequestDTO clienteRequestDTO) {
+        ContaResponseDTO contaResponseDTO = clienteService.cadastra(clienteRequestDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(new ResponseDTO<>(contaResponseDTO));
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseDTO<List<ClienteResponseDTO>>> consultaTodos() {
+        List<ClienteResponseDTO> clientes = clienteService.consultaTodos();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body(new ResponseDTO<>(clientes));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<ClienteResponseDTO>> consultaPorId(@PathVariable("id") Long id) {
+        ClienteResponseDTO clienteResponseDTO = clienteService.consulta(id);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body(new ResponseDTO<>(clienteResponseDTO));
+    }
+
+    @GetMapping("/{id}/conta")
+    public ResponseEntity<ResponseDTO<ContaResponseDTO>> consultaContaPorIdCliente(@PathVariable("id") Long id) {
+        ContaResponseDTO contaResponseDTO = clienteService.consultaContaPorIdCliente(id);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body(new ResponseDTO<>(contaResponseDTO));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> atualiza(@PathVariable("id") Long id, @Valid @RequestBody ClienteRequestDTO clienteRequestDTO) {
+        clienteService.atualiza(id, clienteRequestDTO);
+
+        return ResponseEntity.noContent()
+                             .build();
+    }
+
 }

@@ -23,7 +23,7 @@ import com.matera.cursoferias.digitalbank.enumerator.SituacaoConta;
 import com.matera.cursoferias.digitalbank.enumerator.TipoLancamento;
 import com.matera.cursoferias.digitalbank.exception.ServiceException;
 import com.matera.cursoferias.digitalbank.repository.ContaRepository;
-import com.matera.digitalbank.utils.DigitalBankUtils;
+import com.matera.cursoferias.digitalbank.utils.DigitalBankUtils;
 
 @Service
 public class ContaService {
@@ -64,7 +64,7 @@ public class ContaService {
 		return lancamentoService.entidadeParaComprovanteResponseDTO(lancamento);
 	}
 
-	@Transactional
+    @Transactional
 	public ComprovanteResponseDTO efetuaTransferencia(Long id, TransferenciaRequestDTO transferenciaRequestDTO) {
 		Conta contaDebito = findById(id);
 
@@ -157,10 +157,10 @@ public class ContaService {
                                        cliente.getTelefone() + ").");
         }
     }
-    
+
     private Natureza defineNaturezaPorTipoLancamento(TipoLancamento tipoLancamento) {
-		return TipoLancamento.DEPOSITO.equals(tipoLancamento) ? Natureza.CREDITO : Natureza.DEBITO;
-	}
+        return TipoLancamento.DEPOSITO.equals(tipoLancamento) ? Natureza.CREDITO : Natureza.DEBITO;
+    }
 
     private Lancamento insereLancamento(LancamentoRequestDTO lancamentoRequestDTO, Conta conta, Natureza natureza, TipoLancamento tipoLancamento) {
 	    Lancamento lancamento = lancamentoService.efetuaLancamento(lancamentoRequestDTO, conta, natureza, tipoLancamento);
