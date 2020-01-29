@@ -23,51 +23,51 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ClienteRequestDTO {
 
-	@NotBlank
-	@Size(max = 100)
+    @NotBlank
+    @Size(max = 100)
     private String nome;
-	
-	@NotBlank
-	@Size(min = 11, max = 11)
-	@CPF
+
+    @NotBlank
+    @Size(min = 11, max = 11)
+    @CPF
     private String cpf;
-	
-	@NotNull
-	@Digits(integer = 12, fraction = 0)
-	@Positive
+
+    @NotNull
+    @Digits(integer = 12, fraction = 0)
+    @Positive
     private Long telefone;
-	
-	@NotNull
-	@Digits(integer = 18, fraction = 2)
-	@Positive
+
+    @NotNull
+    @Digits(integer = 18, fraction = 2)
+    @Positive
     private BigDecimal rendaMensal;
-	
-	@NotBlank
-	@Size(max = 100)
+
+    @NotBlank
+    @Size(max = 100)
     private String logradouro;
-	
-	@NotNull
-	@Digits(integer = 5, fraction = 0)
-	@Positive
+
+    @NotNull
+    @Digits(integer = 5, fraction = 0)
+    @Positive
     private Integer numero;
-	
-	@Size(max = 100)
+
+    @Size(max = 100)
     private String complemento;
-	
-	@NotBlank
-	@Size(max = 100)
+
+    @NotBlank
+    @Size(max = 100)
     private String bairro;
-    
-	@NotBlank
-	@Size(max = 100)
-	private String cidade;
-    
-	@NotBlank
-	@Size(min = 2, max = 2)
-	private String estado;
-	
-	@NotBlank
-	@Size(max = 8)
+
+    @NotBlank
+    @Size(max = 100)
+    private String cidade;
+
+    @NotBlank
+    @Size(min = 2, max = 2)
+    private String estado;
+
+    @NotBlank
+    @Size(max = 8)
     private String cep;
 
 }

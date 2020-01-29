@@ -37,8 +37,21 @@
       * [Branch - aula 4](https://github.com/materasystems/curso-de-ferias-2020-spring/tree/aula4)
   * **Aula 5**
       * Criando consultas necessárias nas classes *Repository* para as validações feitas nas classes *Service*
+      * Finalizando criação das classes de *Request* e *Response* no pacote **dto**
       * Finalizando criação das regras de negócio nas classes do pacote **service**
       * [Branch - aula 5](https://github.com/materasystems/curso-de-ferias-2020-spring/tree/aula5)
+  * **Aula 6**
+      * Usando a classe **AppStartupRunner** para alimentar a base de dados do H2 utilizando as classes do pacote **service**
+      * Criação da estrutura do pacote **controller** com requisições *GET*, *POST* e *PUT* para a entidade de Cliente
+      * Tratamento de códigos de retorno HTTP
+      * Requisições via Postman
+      * Anotações do Jackson para formatação do JSON
+      * [Branch - aula 6](https://github.com/materasystems/curso-de-ferias-2020-spring/tree/aula6)
+  * **Aula 7**
+      * Validações nos *requests* usando anotações
+      * *Exception handler* para tratamento de exceções
+      * Criação da estrutura do pacote **controller** com algumas requisições *POST* para a entidade de Conta
+      * [Branch - aula 7](https://github.com/materasystems/curso-de-ferias-2020-spring/tree/aula7)
 
 * ### Modelagem
     ![modelagem](etc/digitalbank-der.png)
