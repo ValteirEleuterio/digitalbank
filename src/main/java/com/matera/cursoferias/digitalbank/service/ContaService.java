@@ -40,6 +40,11 @@ public class ContaService {
     }
 
     @Transactional
+    public void removeLancamentoEstorno(Long idConta, Long idLancamento) {
+    	lancamentoService.removeLancamentoEstorno(idConta, idLancamento);
+    }
+    
+    @Transactional
     public ContaResponseDTO cadastra(Cliente cliente) {
         validaCadastro(cliente);
 
@@ -69,7 +74,7 @@ public class ContaService {
 		Conta contaDebito = findById(id);
 
 		Conta contaCredito = contaRepository.findByNumeroAgenciaAndNumeroConta(transferenciaRequestDTO.getNumeroAgencia(), transferenciaRequestDTO.getNumeroConta())
-		                                    .orElseThrow(() -> new ServiceException("Conta de agência " + transferenciaRequestDTO.getNumeroAgencia() + " e número " + transferenciaRequestDTO.getNumeroConta().toString() + " não encontrada."));
+		                                    .orElseThrow(() -> new ServiceException("DB-5", transferenciaRequestDTO.getNumeroAgencia(), transferenciaRequestDTO.getNumeroConta()));
 
 		Lancamento lancamentoDebito = insereLancamento(new LancamentoRequestDTO(transferenciaRequestDTO.getValor(), transferenciaRequestDTO.getDescricao()), contaDebito, Natureza.DEBITO, TipoLancamento.TRANSFERENCIA);
 		Lancamento lancamentoCredito = insereLancamento(new LancamentoRequestDTO(transferenciaRequestDTO.getValor(), transferenciaRequestDTO.getDescricao()), contaCredito, Natureza.CREDITO, TipoLancamento.TRANSFERENCIA);
@@ -121,7 +126,7 @@ public class ContaService {
 
 	public ContaResponseDTO consultaContaPorIdCliente(Long idCliente) {
 	    Conta conta = contaRepository.findByCliente_Id(idCliente)
-	    							 .orElseThrow(() -> new ServiceException("Conta não encontrada para o cliente de ID " + idCliente + "."));
+	    							 .orElseThrow(() -> new ServiceException("DB-12", idCliente));
 
 	    return entidadeParaResponseDTO(conta);
 	}
@@ -148,13 +153,12 @@ public class ContaService {
 
 	private Conta findById(Long id) {
 		return contaRepository.findById(id)
-							  .orElseThrow(() -> new ServiceException("Conta de ID " + id + " não encontrada."));
+							  .orElseThrow(() -> new ServiceException("DB-3", id));
 	}
 
     private void validaCadastro(Cliente cliente) {
         if (contaRepository.findByNumeroConta(cliente.getTelefone()).isPresent()) {
-            throw new ServiceException("Já existe uma conta cadastrada com o número de telefone informado (" +
-                                       cliente.getTelefone() + ").");
+            throw new ServiceException("DB-4", cliente.getTelefone());
         }
     }
 
@@ -179,13 +183,13 @@ public class ContaService {
 
     private void validaBloqueio(Conta conta) {
         if (SituacaoConta.BLOQUEADA.getCodigo().equals(conta.getSituacao())) {
-            throw new ServiceException("Conta de ID " + conta.getId() + " já se encontra na situação Bloqueada.");
+            throw new ServiceException("DB-13", conta.getId());
         }
     }
 
     private void validaDesbloqueio(Conta conta) {
         if (SituacaoConta.ABERTA.getCodigo().equals(conta.getSituacao())) {
-            throw new ServiceException("Conta de ID " + conta.getId() + " já se encontra na situação Aberta.");
+            throw new ServiceException("DB-14", conta.getId());
         }
     }
 
