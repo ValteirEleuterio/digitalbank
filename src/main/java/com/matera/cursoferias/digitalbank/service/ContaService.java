@@ -40,11 +40,6 @@ public class ContaService {
     }
 
     @Transactional
-    public void removeLancamentoEstorno(Long idConta, Long idLancamento) {
-    	lancamentoService.removeLancamentoEstorno(idConta, idLancamento);
-    }
-    
-    @Transactional
     public ContaResponseDTO cadastra(Cliente cliente) {
         validaCadastro(cliente);
 
@@ -74,7 +69,7 @@ public class ContaService {
 		Conta contaDebito = findById(id);
 
 		Conta contaCredito = contaRepository.findByNumeroAgenciaAndNumeroConta(transferenciaRequestDTO.getNumeroAgencia(), transferenciaRequestDTO.getNumeroConta())
-		                                    .orElseThrow(() -> new ServiceException("DB-5", transferenciaRequestDTO.getNumeroAgencia(), transferenciaRequestDTO.getNumeroConta()));
+		                                    .orElseThrow(() -> new ServiceException("DB-5", transferenciaRequestDTO.getNumeroAgencia(), transferenciaRequestDTO.getNumeroConta().toString()));
 
 		Lancamento lancamentoDebito = insereLancamento(new LancamentoRequestDTO(transferenciaRequestDTO.getValor(), transferenciaRequestDTO.getDescricao()), contaDebito, Natureza.DEBITO, TipoLancamento.TRANSFERENCIA);
 		Lancamento lancamentoCredito = insereLancamento(new LancamentoRequestDTO(transferenciaRequestDTO.getValor(), transferenciaRequestDTO.getDescricao()), contaCredito, Natureza.CREDITO, TipoLancamento.TRANSFERENCIA);
@@ -150,6 +145,11 @@ public class ContaService {
         conta.setSituacao(SituacaoConta.ABERTA.getCodigo());
         contaRepository.save(conta);
     }
+
+	@Transactional
+	public void removeLancamentoEstorno(Long idConta, Long idLancamento) {
+	    lancamentoService.removeLancamentoEstorno(idConta, idLancamento);
+	}
 
 	private Conta findById(Long id) {
 		return contaRepository.findById(id)

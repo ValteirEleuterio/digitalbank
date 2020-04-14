@@ -14,13 +14,15 @@ public enum Natureza {
     public String getCodigo() {
         return codigo;
     }
-    
+
     public static Natureza buscaPorCodigo(String codigo) {
-    	for (Natureza natureza : values()) {
-    		if (natureza.getCodigo().contentEquals(codigo))
-    			return natureza;
-    	}
-    	return null;
+        for (Natureza natureza : values()) {
+            if (natureza.getCodigo().equals(codigo)) {
+                return natureza;
+            }
+        }
+
+        return null;
     }
 
 }

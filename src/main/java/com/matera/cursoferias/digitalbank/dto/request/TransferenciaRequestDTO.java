@@ -22,22 +22,22 @@ import lombok.ToString;
 @NoArgsConstructor
 public class TransferenciaRequestDTO {
 
-	@NotNull
-	@Digits(integer = 4, fraction = 0)
-	@Positive
+    @NotNull
+    @Digits(integer = 4, fraction = 0)
+    @Positive
 	private Integer numeroAgencia;
-	
-	@NotNull
-	@Digits(integer = 12, fraction = 0)
-	@Positive
+
+    @NotNull
+    @Digits(integer = 12, fraction = 0)
+    @Positive
 	private Long numeroConta;
-	
-	@NotNull
-	@Digits(integer = 18, fraction = 2)
-	@Positive
+
+    @NotNull
+    @Digits(integer = 18, fraction = 2)
+    @Positive
 	private BigDecimal valor;
-	
-	@Size(max = 50)
+
+    @Size(max = 50)
 	private String descricao;
 
 }

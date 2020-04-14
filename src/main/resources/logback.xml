@@ -10,10 +10,10 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FOLDER}\\${LOG_FILE_NAME}</file>
         <append>true</append>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-	        <fileNamePattern>${LOG_FOLDER}\\${LOG_FILE_NAME}.%d{yyyy-MM-dd_HH}hs.zip</fileNamePattern>
-		    <maxHistory>30</maxHistory>
-		</rollingPolicy>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FOLDER}\\${LOG_FILE_NAME}.%d{yyyy-MM-dd_HH}hs.zip</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
         <encoder>
             <pattern>[%d{dd/MM/yyyy HH:mm:ss.SSS X}] [%-33.-33thread] [%-5level] [%-70logger{70}] %msg%n</pattern>
         </encoder>

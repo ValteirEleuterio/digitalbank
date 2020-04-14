@@ -21,21 +21,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class ControllerBase {
 
-	private final MessageSource messageSource;
-	
-	public ControllerBase(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}	
-	
+    private final MessageSource messageSource;
+
+    public ControllerBase(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<ResponseDTO<Object>> handleException(ServiceException exception) {
-    	
-    	String mensagemErro = messageSource.getMessage(
-    			exception.getCodigoErro(), 
-    			exception.getParametros(), 
-    			LocaleContextHolder.getLocale()
-    	); 
-    	
+        log.debug("Erro de negócio ao processar a requisição.", exception);
+
+        String mensagemErro = messageSource.getMessage(exception.getCodigoErro(), exception.getParametros(), LocaleContextHolder.getLocale());
         ErroResponseDTO erro = new ErroResponseDTO(exception.getCodigoErro() + ": " + mensagemErro);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -44,6 +40,8 @@ public abstract class ControllerBase {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDTO<Object>> handleException(MethodArgumentNotValidException exception) {
+        log.debug("Erro ao validar a requisição.", exception);
+
         List<ErroResponseDTO> erros = new ArrayList<>();
         BindingResult bindingResult = exception.getBindingResult();
 
@@ -57,16 +55,16 @@ public abstract class ControllerBase {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(ResponseDTO.comErros(erros));
     }
-    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDTO<Object>> handleException(Exception exception) {
-    	log.error("Erro não esperado ao processar a requisição.", exception);
-    	
-    	String mensagemErro = messageSource.getMessage("DB-99", null, LocaleContextHolder.getLocale());
-    	ErroResponseDTO erro = new ErroResponseDTO("DB-99: " + mensagemErro);
-    	
-    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseDTO.comErro(erro));
+        log.error("Erro não esperado ao processar a requisição.", exception);
+
+        String mensagemErro = messageSource.getMessage("DB-99", null, LocaleContextHolder.getLocale());
+        ErroResponseDTO erro = new ErroResponseDTO("DB-99: " + mensagemErro);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(ResponseDTO.comErro(erro));
     }
 
 }
